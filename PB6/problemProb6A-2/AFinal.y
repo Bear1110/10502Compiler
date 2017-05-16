@@ -27,9 +27,9 @@
 
 line    : expr                  { printf("Accepted"); }
 	    ;
-expr    : expr '+' expr         { if($1.row==$3.row && $1.col==$3.col){ $$ = $1; }else{error($2);} }
-    	| expr '-' expr         { if($1.row==$3.row && $1.col==$3.col){ $$ = $1; }else{error($2);} }
-        | expr '*' expr         { if($1.col == $3.row){ $1.col=$3.col; $$ = $1;  }else{error($2);} }
+expr    : expr '+' expr         { if($1.row==$3.row && $1.col==$3.col){ $$ = $1; }else{return error($2);} }
+    	| expr '-' expr         { if($1.row==$3.row && $1.col==$3.col){ $$ = $1; }else{return error($2);} }
+        | expr '*' expr         { if($1.col == $3.row){ $1.col=$3.col; $$ = $1;  }else{return error($2);} }
         | '(' expr ')' %prec A  { $$ = $2; }
         | expr TRANSPOSE        {
                                     int temp = $1.row;
@@ -37,15 +37,14 @@ expr    : expr '+' expr         { if($1.row==$3.row && $1.col==$3.col){ $$ = $1;
                                     $1.col = temp;                                         
                                     $$ = $1;
                                 }
-        | '[' NUM ',' NUM ']' %prec B { 
+        | '[' NUM ',' NUM ']' %prec B {
                                     $$.row = $2;
                                     $$.col = $4;
                                 }
         ;
 %%
 int error(int i){
-    printf ("Semantic error on col %d",i);
-    exit(1);
+    printf ("Semantic error on col %d\n",i);
     return 0;
 }
 void yyerror (const char *message) {
