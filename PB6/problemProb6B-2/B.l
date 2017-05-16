@@ -15,11 +15,11 @@
         map< string , int> m;
     };
     #define YYSTYPE Type//好了 你看這樣行不行 YYSTYPE <<< 我不用去呼叫他?? 不用 他是 yylval的型態
-    #include "y.tab.h"
+    #include "B.tab.h"
 %}
 element [A-Z][a-z]*
 %%
-\n	      { return(0); /* EOF */ }
+\n	      {  return(0); /* EOF */ }
 [0-9]+	  { yylval.ival = atoi(yytext); return(NUM); }
 "->"      { return(EQUAL); }
 {element} { yylval.istring = strdup(yytext); return(ELEMENT);}

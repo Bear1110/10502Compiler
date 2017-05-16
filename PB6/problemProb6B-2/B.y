@@ -25,11 +25,10 @@
 %left '+'
 %left EQUAL
 %nonassoc A
-
 %%
 lines    : formula EQUAL formula { compare($1,$3); }
          ;
-formula  : elements '+' elements { $$ = add($1,$3); }
+formula  : formula '+' formula { $$ = add($1,$3); }
          | elements { $$ = $1; }
          ;
 elements : elements elements {
@@ -78,7 +77,7 @@ void compare (map<string,int> a , map<string,int> b){
     }
 }
 void yyerror (const char *message) {
-    cout <<"Invalid format";
+    cout <<"Invalid format\n";
 	//fprintf (stderr, "%s\n", message);
 }
 int main(int argc, char *argv[]) {
