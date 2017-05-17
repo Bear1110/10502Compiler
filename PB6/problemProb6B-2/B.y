@@ -1,7 +1,6 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include <stdio.h>
     #include <string.h>
     #include <map>
     #include <string>
@@ -10,7 +9,8 @@
     int yylex(void);
     void yyerror(const char *message);
     map<string,int> add (map<string,int> a , map<string,int> b);
-    void compare (map<string,int> a , map<string,int> b);
+    map<string,int> compare (map<string,int> a , map<string,int> b);
+    void print (map<string,int> a);
     struct Type{
         int ival;
         string istring;
@@ -21,12 +21,16 @@
 %token <ival> NUM
 %type <m> formula
 %type <m> elements
+%type <m> ele
 %token <istring> ELEMENT
-%left '+'
 %left EQUAL
+%left '+'
+%nonassoc C
+%nonassoc B
 %nonassoc A
+
 %%
-lines    : formula EQUAL formula { compare($1,$3); }
+lines    : formula EQUAL formula { print(compare($1,$3)); }
          ;
 formula  : formula '+' formula { $$ = add($1,$3); }
          | elements { $$ = $1; }
@@ -34,7 +38,7 @@ formula  : formula '+' formula { $$ = add($1,$3); }
 elements : elements elements {
                                 $$ = add($1,$2);
                              }
-         | NUM elements {
+         | NUM elements %prec C {
                             map< string , int> m;
                             for (map<string , int>::iterator i = $2.begin(); i != $2.end(); i++) {
 			                    m[(*i).first] = (*i).second*$1;
@@ -47,7 +51,11 @@ elements : elements elements {
                                             }
                                             $$ = $2;
                                         }
-         | ELEMENT NUM { $$[$1] += $2; }
+         |'(' elements ')' %prec A { $$ = $2; }
+         |'(' NUM elements ')' %prec A { yyerror("123"); }    
+         | ele %prec B { $$ = $1;} 
+         ;
+ele      : ELEMENT NUM { $$[$1] += $2; }
          | ELEMENT { $$[$1] += 1; }
          ;
 %%
@@ -62,7 +70,7 @@ map<string,int> add (map<string,int> a , map<string,int> b){
     }  
     return m;
 }
-void compare (map<string,int> a , map<string,int> b){
+map<string,int> compare (map<string,int> a , map<string,int> b){
     map< string , int> m;
     for (map<string, int>::iterator i = a.begin(); i != a.end(); i++) {
 	    //cout << (*i).first << " : " <<(*i).second<<endl;
@@ -71,13 +79,17 @@ void compare (map<string,int> a , map<string,int> b){
     for (map<string,int>::iterator i = b.begin(); i != b.end(); i++) {
 		m[(*i).first] -= (*i).second;
     }
-    for (map<string,int>::iterator i = m.begin(); i != m.end(); i++) {
+    return m;
+}
+void print (map<string,int> a){
+    for (map<string,int>::iterator i = a.begin(); i != a.end(); i++) {
         if((*i).second == 0 ) continue;
 		cout << (*i).first << " " <<(*i).second<<endl;
     }
 }
 void yyerror (const char *message) {
     cout <<"Invalid format\n";
+    exit(0);
 	//fprintf (stderr, "%s\n", message);
 }
 int main(int argc, char *argv[]) {

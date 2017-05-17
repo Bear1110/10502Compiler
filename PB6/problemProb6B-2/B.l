@@ -1,7 +1,6 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include <stdio.h>
     #include <string.h>
     #include <map> 
     #include <string>
@@ -20,7 +19,7 @@
 element [A-Z][a-z]*
 %%
 \n	      {  return(0); /* EOF */ }
-[0-9]+	  { yylval.ival = atoi(yytext); return(NUM); }
+[0-9]+	  {  yylval.ival = atoi(yytext); return(NUM); }
 "->"      { return(EQUAL); }
 {element} { yylval.istring = strdup(yytext); return(ELEMENT);}
 "+"|"("|")" { return(yytext[0]); }
