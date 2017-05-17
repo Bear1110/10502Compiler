@@ -16,7 +16,7 @@
         string istring;
         map< string , int> m;
     };
-    #define YYSTYPE Type//好了 你看這樣行不行 YYSTYPE <<< 我不用去呼叫他?? 不用 他是 yylval的型態 
+    #define YYSTYPE Type// 這邊類似 unio的功能 貌似 C++ 不能用 union
 %}
 %token <ival> NUM
 %type <m> formula
