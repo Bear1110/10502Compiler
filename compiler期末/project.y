@@ -7,25 +7,17 @@ int yylex(void);
 void yyerror(const char *message);
 void type_check(int , int, int);
 int id_check(char*);
-
-/*****************id define varible************************/
-int counter = 0;
-char name[100][30];
-int name_value[100];
-//for function
-int Fcounter = 0;
-bool Fini = false;
-char Fname[100][30];
-int Fname_value[100];
+/*****************id define global varible************************/
+int counter = 0; //用來存變數 算現在到底幾個
+char name[100][30];// 後面' 30 是 變數名稱
+int name_value[100]; // 存 變數 value
 /****************************************************/
-
 %}
 %union {
 	int ival;
 	int tf[2]; //tf[0]=0||1 (0 for int 1 for bool)   tf[1]  for assgin value   
 	char *word;
 }
-
 %token <ival> NUM
 %token <ival> bool_var
 %token <word> WORD
@@ -58,10 +50,8 @@ print_STMT	: '(' print_num expr ')'		{
 											}  
 			| '(' print_bool expr ')'		{
 												type_check($<tf>3[0],1,1);
-												if ($<tf>3[1]==1)
-													printf("%s\n","#t" );
-												else
-													printf("%s\n","#f" );
+												char *temp = ($<tf>3[1]==1) ? "#t" : "#f" ;
+												printf("%s\n", temp);
 											}
 expr		:NUM 							{$<tf>$[0]=0; $<tf>$[1]= $1;}
 			|NUM-OP
@@ -167,7 +157,7 @@ PARAM       : expr                   {
 //FUN-NAME    : id*/
 /********************************define**************************************************/
 
-def_STMT 	:'(' define variable expr ')'	{
+def_STMT 	:'(' define variable expr ')'	{//這邊是define一個 varible 所做的事情
 													if(id_check($<word>3)==-1){
 															strcpy(name[counter], $<word>3);
 															name_value[counter]=$<tf>4[1];
@@ -179,7 +169,7 @@ def_STMT 	:'(' define variable expr ')'	{
 													}
 											}
 
-expr		: variable						{//這邊是拿來當作有人呼叫一個已經宣告的東西用
+expr		: variable						{//這邊是拿來當作有人呼叫一個預計已經宣告的東西用
 													int index=id_check($<word>1);
 													
 													if(index==-1){
@@ -190,7 +180,6 @@ expr		: variable						{//這邊是拿來當作有人呼叫一個已經宣告的�
 														$<tf>$[0]=0;
 														$<tf>$[1]=name_value[index];
 													}
-
 											}
 variable	: id
 
@@ -202,26 +191,21 @@ void yyerror(const char *message){
 }
 void type_check(int type1,int type2,int typeWant){
 	if (type1 != typeWant || type2 != typeWant){
-		char *one = "number";
-		char *two = "boolean";
-		if(typeWant == 1){ // expect bool but get int
-			one = "boolean";
-			two = "number";
-		}
+		char *one = (typeWant == 1) ? "boolean" : "number";
+		char *two = (typeWant == 1) ? "number" : "boolean";
 		printf("Type Error: Expect ‘%s’ but got ‘%s’.\n",one,two);
 		exit(0);
 	}
 }
 int id_check(char *a){
 	int rc=-1;
-		for (int i = 0; i<100; ++i)
-		{
-			rc= strcmp(a,name[i]);
-			if(rc==0){
-				return i;
-			}
+	for (int i = 0; i<100; ++i){ //掃描所有空間
+		rc = strcmp(a,name[i]); //比較字串
+		if(rc==0){// 為0表示沒有不一樣
+			return i;
 		}
-		return -1;
+	}
+	return -1;
 }
 int main(int argc, char *argv[]){
 	yyparse();
